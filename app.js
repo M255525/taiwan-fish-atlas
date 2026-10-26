@@ -248,6 +248,7 @@ function bind(){
   $('list').addEventListener('mouseleave', function(){ hover(null); });
   $('btnAll').addEventListener('click', function(){ st.region = 'all'; st.port = null; fillSelectors(); render({fly:true}); });
   $('btnAbout').addEventListener('click', function(){ lastFocus = document.activeElement; $('about').classList.add('show'); $('about').querySelector('.x').focus(); });
+  $('btnCreator').addEventListener('click', function(){ $('btnAbout').click(); var c = $('about').querySelector('.creator-box'); if (c) c.scrollIntoView({block:'nearest'}); });
   $('btnPrint').addEventListener('click', function(){ window.print(); });
   $('sheetBtn').addEventListener('click', function(){
     var min = $('panel').classList.toggle('min'); document.body.classList.toggle('sheet-min', min); this.textContent = min ? '展開' : '收合';

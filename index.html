@@ -6,6 +6,12 @@
 <title>台灣漁港魚汛圖鑑</title>
 <meta name="description" content="動漫風 3D 台灣與周邊島嶼海圖：選漁港、月份與近海／遠海，看當月可捕到的漁獲游來游去，點魚看圖鑑、烹飪方式與食譜。">
 <meta name="theme-color" content="#2b8fd6">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="魚汛圖鑑">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -103,6 +109,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 #place p{margin:4px 0 0;font-size:13px;color:var(--ink2);line-height:1.55}
 #sum{margin-top:8px;font-size:13px;background:var(--paper2);border-radius:10px;padding:6px 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 #sum b{font-family:var(--round);font-weight:400;font-size:16px;color:var(--coral)}
+#panelFoot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:7px 12px;border-top:2px dashed var(--line);font-size:12px;color:var(--mute)}
+#panelFoot button{border:0;background:none;padding:0;color:var(--sea);text-decoration:underline;font-size:12px}
+#panelFoot img{display:block}
 #list{flex:1;overflow-y:auto;padding:10px 12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start}
 .fcard{border:2px solid var(--line);background:var(--paper);border-radius:14px;padding:6px 8px 8px;text-align:left;display:flex;flex-direction:column;gap:2px;transition:transform .15s,border-color .15s}
 .fcard:hover,.fcard.on{border-color:#2f2638;transform:translateY(-2px);box-shadow:3px 3px 0 #2f2638}
@@ -219,7 +228,8 @@ button.chip:hover{border-color:#2f2638;background:var(--sun);color:#2f2638}
   #legend{display:none}
   #tools{left:10px;bottom:calc(46vh + 10px);flex-direction:row}
   body.sheet-min #tools{bottom:128px}
-  .tbtn{padding:5px 8px;font-size:12px}
+  .tbtn{padding:4px 6px;font-size:11px;white-space:nowrap;box-shadow:1px 2px 0 #2f2638}
+  #tools{gap:4px;right:10px}
   #fishHead{grid-template-columns:1fr;padding:14px 14px 6px}
   #pvWrap{height:170px}
   #fishTitle h2{font-size:24px}
@@ -284,10 +294,15 @@ button.chip:hover{border-color:#2f2638;background:var(--sun);color:#2f2638}
     <div id="sum"></div>
   </div>
   <div id="list"></div>
+  <div id="panelFoot">
+    <span>創作者：<button type="button" id="btnCreator">Mark Tsai（蔡豐全）</button></span>
+    <img src="https://visitor-badge.laobi.icu/badge?page_id=m255525.taiwanfishatlas" alt="訪客次數" height="20">
+  </div>
 </aside>
 
 <div id="tools" class="ui">
   <button class="tbtn" id="btnAll" type="button">🗺 看全台</button>
+  <button class="tbtn" id="installBtn" type="button">📲 加入主畫面</button>
   <button class="tbtn" id="btnAbout" type="button">ⓘ 關於／警語</button>
   <a class="tbtn" href="manual.html" target="_blank" rel="noopener">📖 使用說明</a>
 </div>
@@ -422,6 +437,59 @@ button.chip:hover{border-color:#2f2638;background:var(--sun);color:#2f2638}
   render(loadCache());
   fetchMarquee();
   setInterval(fetchMarquee, REFRESH_MS);
+})();
+</script>
+<script>
+/* ================= 加入主畫面（PWA） ================= */
+(function () {
+  'use strict';
+  var deferredPrompt = null;
+  var btn = document.getElementById('installBtn');
+
+  var ua = navigator.userAgent || '';
+  var isIOSDevice = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var isMacDesktop = /Macintosh/.test(ua) && !isIOSDevice;
+  var isSafariEngine = /^((?!chrome|crios|fxios|edgios|android).)*safari/i.test(ua);
+  var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+
+  function fallbackMessage() {
+    if (isIOSDevice) return '請點畫面上的「分享」圖示，選「加入主畫面」';
+    if (isMacDesktop && isSafariEngine) return '請用選單列「檔案」→「加入 Dock」（Safari 17 以上）';
+    return '瀏覽器不支援，或已安裝過';
+  }
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+  window.addEventListener('appinstalled', function () {
+    deferredPrompt = null;
+  });
+
+  if (btn) {
+    if (isStandalone) {
+      btn.style.display = 'none';
+    } else {
+      btn.addEventListener('click', function () {
+        if (!deferredPrompt) {
+          window.alert(fallbackMessage());
+          return;
+        }
+        try {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(function () { deferredPrompt = null; });
+        } catch (err) {
+          window.alert(fallbackMessage());
+        }
+      });
+    }
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('service-worker.js').catch(function () {});
+    });
+  }
 })();
 </script>
 </body>

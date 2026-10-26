@@ -19,7 +19,10 @@
 ## 配套
 - ✅ 跑馬燈、manual、使用警語、創作者資訊、RWD（375px 無橫向捲動）、localStorage `fishAtlasPrefs`（海域／區域／漁港；月份每次預設本月）、`fishAtlasMarquee`
 - ❌ 序號授權（不需要）
-- ⏳ PWA、訪客計數器、GitHub Pages：**尚未上線，等使用者確認**（實驗性新工具先問再推）
+- ✅ PWA（`manifest.json`＋`service-worker.js` network-first＋`icons/` 用 PIL 自畫：海＋島＋小黃魚；工具列「📲 加入主畫面」）
+- ✅ 創作者資訊：清單面板底部常駐一行（點名字開「關於」彈窗的創作者區）＋關於彈窗＋manual `#creator`
+- ✅ 訪客計數器（visitor-badge，`page_id=m255525.taiwanfishatlas`，在清單面板底部）
+- ✅ GitHub Pages（2026-10-26 使用者要求上線）：公開 repo <https://github.com/M255525/taiwan-fish-atlas>，網址 <https://m255525.github.io/taiwan-fish-atlas/>，`master` 分支＋`.github/workflows/deploy-pages.yml`。改了 `data.js`／`scene.js`／`app.js` 記得把 `service-worker.js` 的 `CACHE_NAME` 版號 +1。
 
 ## Port／測試
 - port **8836**（`.claude/launch.json` 的 `taiwan-fish-atlas`）；程式牆 `LOCAL_APPS` 有一筆 static。
