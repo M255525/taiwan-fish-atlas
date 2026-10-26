@@ -25,5 +25,5 @@
 - ✅ GitHub Pages（2026-10-26 使用者要求上線）：公開 repo <https://github.com/M255525/taiwan-fish-atlas>，網址 <https://m255525.github.io/taiwan-fish-atlas/>，`master` 分支＋`.github/workflows/deploy-pages.yml`。改了 `data.js`／`scene.js`／`app.js` 記得把 `service-worker.js` 的 `CACHE_NAME` 版號 +1。
 
 ## Port／測試
-- port **8836**（`.claude/launch.json` 的 `taiwan-fish-atlas`）；程式牆 `LOCAL_APPS` 有一筆 static。
+- port **8836**（`.claude/launch.json` 的 `taiwan-fish-atlas`）；上線後程式牆已從 `LOCAL_APPS` 移除、改加 `REPO_META`（github-dashboard 同步）。
 - 驗證：Playwright 開 `http://127.0.0.1:8836/`，用 `__fishAtlas.selectPort('donggang')`、`setZone('far')`、`setMonth(5)`、`openFish('sakura')`；console 應無錯誤；375px 寬 `scrollWidth===clientWidth`。
