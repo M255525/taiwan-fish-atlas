@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>魚汛圖鑑使用說明</title>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1f2a4d;--ink2:#4b5878;--paper:#fff;--bg:#eaf6ff;--line:#d6e3f5;--coral:#ff6f61;--near:#62d6d8;--far:#2a6fc4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ink:#e8eefc;--ink2:#c2cde6;--paper:#16203a;--bg:#0f172b;--line:#2c3b61}}
+:root[data-theme="dark"]{--ink:#e8eefc;--ink2:#c2cde6;--paper:#16203a;--bg:#0f172b;--line:#2c3b61}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans TC',sans-serif;line-height:1.8}
+main{max-width:820px;margin:0 auto;padding:24px 16px 48px}
+h1,h2{font-family:'Huninn','Noto Sans TC',sans-serif;font-weight:400}
+h1{font-size:30px;margin:0 0 4px}
+h2{font-size:21px;margin:28px 0 8px;border-left:6px solid var(--coral);padding-left:10px}
+section{background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:6px 18px 14px;margin-top:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:top}
+.k{display:inline-block;width:12px;height:12px;border-radius:3px;border:2px solid #2f2638;vertical-align:-1px}
+a{color:#2b8fd6}
+p,li{color:var(--ink2)}
+</style>
+</head>
+<body>
+<main>
+<h1>台灣漁港魚汛圖鑑・使用說明</h1>
+<p><a href="index.html">← 回到 3D 海圖</a></p>
+
+<section>
+<h2>這是什麼</h2>
+<p>一張動漫風格的 3D 台灣海圖：台灣本島在中間，周邊畫出澎湖、金門、馬祖（含東引）、綠島、蘭嶼、小琉球、龜山島。地圖上標了 34 個主要漁港，依你選的「月份」與「近海／遠海」，把當月可以捕到的漁獲放進海裡游動；點任何一條魚，就會打開牠的圖鑑、產季月曆、可捕撈漁港、烹飪方式與食譜。</p>
+</section>
+
+<section>
+<h2>基本操作</h2>
+<ol>
+<li><b>選月份</b>：下方的 1–12 月按鈕，或拖曳下面的<b>月份軸線</b>。軸線上每個月有兩根長條：<span class="k" style="background:var(--near)"></span> 近海、<span class="k" style="background:var(--far)"></span> 遠海可捕種數，底下色帶是四季（春綠、夏黃、秋橘、冬藍）。按 ▶ 會自動輪播十二個月；鍵盤 ← → 也能切換。</li>
+<li><b>選海域</b>：左上「近海／遠海」切換。地圖海面會同步亮起對應的海域帶。</li>
+<li><b>選漁港</b>：點地圖上的燈塔或港名，或用右側（手機在下方）選單先選區域、再選漁港。選「全台灣」時，每區只放幾種代表漁獲；選了漁港才會列出完整清單。</li>
+<li><b>看圖鑑</b>：點海裡的魚、魚名標籤，或清單裡的卡片。彈窗可以「列印圖鑑與食譜」；點「可捕撈的漁港」裡的港名會直接飛到那個港。</li>
+<li><b>地圖</b>：拖曳旋轉、右鍵或雙指拖曳平移、滾輪或雙指縮放；「看全台」回到總覽。</li>
+</ol>
+</section>
+
+<section>
+<h2>近海與遠海怎麼分</h2>
+<table>
+<tr><th>海域</th><th>本工具的定義</th><th>地圖上的樣子</th></tr>
+<tr><td><span class="k" style="background:var(--near)"></span> 近海</td><td>沿岸到離岸約 12 浬（約 22 公里）內，多為當日或隔日往返的作業海域。</td><td>淺藍綠色帶，外緣白色虛線。</td></tr>
+<tr><td><span class="k" style="background:var(--far)"></span> 遠海</td><td>12 浬以外到外海、經濟海域，以黑潮洄游魚類為主；標「遠洋」的（秋刀魚、阿根廷魷）是台灣船隊到外洋捕撈後卸回國內漁港。</td><td>深藍色帶，再外圈為點線。</td></tr>
+</table>
+<p>這是為了教學好理解的簡化分法，和漁業法規上「沿岸／近海／遠洋漁業」的正式定義不完全相同。</p>
+</section>
+
+<section>
+<h2>收錄內容</h2>
+<p>34 個漁港分成 9 區：北部、東北部、東部、南部、西南部、中西部、澎湖、金門馬祖、東部離島。36 種漁獲，包括鎖管、軟絲、花枝、白帶魚、鯖魚、鬼頭刀、飛魚、黑鮪魚、黃鰭鮪、旗魚、正鰹、秋刀魚、櫻花蝦、魩仔魚、烏魚、白鯧、午仔魚、馬頭魚、紅目鰱、紅喉、竹莢魚、沙丁魚、石斑、黑毛、三點蟹、花蟹、龍蝦、蝦猴、土魠魚、鮸魚、赤鯮、剝皮魚、嘉鱲、章魚、魷魚、黃魚。每種都有圖鑑說明、棲息環境、挑選要訣、推薦烹飪方式與 1–2 道家常食譜。</p>
+<p>★ 表示該魚是這個漁港特別有名的名產（例如東港黑鮪魚、櫻花蝦，南方澳鯖魚，成功鏢旗魚，蘭嶼飛魚）。</p>
+</section>
+
+<section>
+<h2>注意事項</h2>
+<ul>
+<li>季節資料為一般性參考，實際漁況每年受水溫、黑潮、颱風、休漁期與禁漁公告影響。</li>
+<li>海岸線、島嶼大小與山的高度都經過簡化與誇大，不可用於航行、漁撈或任何導航。</li>
+<li>捕撈與購買請遵守漁業法規（抱卵母蟹與未達體長的龍蝦應放流、魩仔魚與櫻花蝦有漁期限制、黑鮪魚有配額管理）；在蘭嶼請尊重達悟族的飛魚季文化與規範。</li>
+<li>生食請確認來源為生食等級且保持冷藏；對海鮮過敏者請勿食用。</li>
+<li>3D 海圖需要網路下載繪圖元件；若載入失敗，清單與圖鑑仍可使用。你選的海域與漁港會記在這台裝置的瀏覽器，不會上傳。</li>
+<li>僅供教學、課程及個人使用，禁止未經授權公開發布、販售或商業化使用。</li>
+</ul>
+</section>
+
+<section id="creator">
+<h2>創作者</h2>
+<p><b>Mark Tsai（蔡豐全）</b>：勞動力發展署創業顧問（2017 起）、經濟部 SBIR 海選專案評審委員（2019－2024），長期擔任小型企業人力提升計畫顧問與多項政府計畫業師、評審委員；專長銷售數據分析、AI 工具運用、政府補助計畫申請、創業與跨境電商。聯絡：<a href="mailto:tsaimark@gmail.com">tsaimark@gmail.com</a></p>
+</section>
+</main>
+</body>
+</html>

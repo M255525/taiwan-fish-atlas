@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>台灣漁港魚汛圖鑑</title>
+<meta name="description" content="動漫風 3D 台灣與周邊島嶼海圖：選漁港、月份與近海／遠海，看當月可捕到的漁獲游來游去，點魚看圖鑑、烹飪方式與食譜。">
+<meta name="theme-color" content="#2b8fd6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<style>
+:root{
+  --ink:#1f2a4d; --ink2:#4b5878; --mute:#7a86a3; --paper:#ffffff; --paper2:#f3f8ff; --line:#d6e3f5;
+  --coral:#ff6f61; --sun:#ffc94a; --aqua:#2bb7c9; --sea:#2b8fd6; --navy:#16336b;
+  --near:#62d6d8; --far:#2a6fc4; --shadow:0 10px 30px rgba(22,51,107,.18); --mq:0px;
+  --r:18px; --font:'Noto Sans TC',system-ui,sans-serif; --round:'Huninn','Noto Sans TC',sans-serif;
+  --sky1:#9fdcff; --sky2:#dff4ff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --ink:#e8eefc; --ink2:#c2cde6; --mute:#93a0bf; --paper:#16203a; --paper2:#1d2a48; --line:#2c3b61; --shadow:0 10px 30px rgba(0,0,0,.45); }
+}
+:root[data-theme="dark"]{ --ink:#e8eefc; --ink2:#c2cde6; --mute:#93a0bf; --paper:#16203a; --paper2:#1d2a48; --line:#2c3b61; --shadow:0 10px 30px rgba(0,0,0,.45); }
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:var(--font);color:var(--ink);background:#bfe6f7;-webkit-font-smoothing:antialiased}
+body.has-marquee{--mq:30px}
+button{font:inherit;color:inherit;cursor:pointer}
+#marqueeBar{position:fixed;top:0;left:0;right:0;height:30px;background:var(--coral);color:#fff;z-index:1500;overflow:hidden;display:none;align-items:center;font-size:13px;font-weight:700}
+#marqueeBar.show{display:flex}
+#marqueeTrack{display:inline-block;white-space:nowrap;padding-left:100%;animation:marquee 30s linear infinite}
+#marqueeBar:hover #marqueeTrack{animation-play-state:paused}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+#stage{position:fixed;left:0;right:0;bottom:0;top:var(--mq);background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 55%,#bfe6f7 100%);transition:background .8s}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lab3d{position:absolute;left:0;top:0;white-space:nowrap;transition:opacity .2s;will-change:transform}
+.lab3d.off{opacity:0;pointer-events:none!important}
+.plab{pointer-events:auto;border:2px solid #fff;background:rgba(22,51,107,.82);color:#fff;font-family:var(--round);font-size:12px;padding:2px 8px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.plab:hover,.plab.on{background:var(--coral)}
+.plab.on{font-size:14px;padding:3px 10px}
+.slab{pointer-events:auto;border:2.5px solid #2f2638;background:#fffdf5;color:#2f2638;font-family:var(--round);font-size:13px;padding:2px 9px 2px 6px;border-radius:12px;box-shadow:2px 3px 0 #2f2638;display:flex;align-items:center;gap:5px;transform-origin:50% 100%}
+.slab i{width:11px;height:11px;border-radius:50%;border:2px solid #2f2638;display:inline-block}
+.slab b{color:#e8a000;font-size:12px}
+.slab:hover,.slab.on{background:var(--sun)}
+.slab.on{z-index:5}
+.ilab{font-family:var(--round);color:#2a3c66;font-size:15px;text-shadow:0 0 4px #fff,0 0 8px #fff;letter-spacing:.1em}
+.ilab.main{font-size:26px;color:#1d5a3c;letter-spacing:.4em}
+.pk{font-size:11px;color:#3b4b3a;text-shadow:0 0 3px #fff,0 0 6px #fff}
+.sealab{font-family:var(--round);font-size:16px;color:rgba(255,255,255,.85);letter-spacing:.5em;text-shadow:0 1px 3px rgba(16,60,120,.45)}
+
+.ui{position:fixed;z-index:20}
+.card-ui{background:var(--paper);border:2.5px solid #2f2638;border-radius:var(--r);box-shadow:4px 5px 0 rgba(47,38,56,.85)}
+#brand{left:14px;top:calc(var(--mq) + 12px);padding:10px 14px 10px 12px;display:flex;gap:10px;align-items:center;max-width:330px}
+#brand svg{flex:none}
+#brand h1{margin:0;font-family:var(--round);font-size:20px;line-height:1.15;font-weight:400}
+#brand p{margin:2px 0 0;font-size:12px;color:var(--ink2)}
+#ctrl{left:360px;right:378px;bottom:14px;padding:8px 10px;display:flex;gap:10px;align-items:center;justify-content:center}
+#months{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+#months::-webkit-scrollbar{display:none}
+.mbtn{flex:none;border:2px solid transparent;background:var(--paper2);border-radius:12px;padding:4px 7px;font-family:var(--round);font-size:14px;min-width:42px;line-height:1.1}
+.mbtn small{display:block;font-size:10px;color:var(--mute)}
+.mbtn.on{background:var(--sun);border-color:#2f2638;color:#2f2638}
+.mbtn.on small{color:#5a4a20}
+.mbtn.now::after{content:'';display:block;width:5px;height:5px;border-radius:50%;background:var(--coral);margin:2px auto 0}
+.mwrap{display:flex;flex-direction:column;gap:2px;min-width:0;max-width:100%}
+#axis{position:relative;height:50px;margin:0 2px}
+#axBars{position:absolute;left:0;right:0;top:0;height:34px;display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end}
+.axc{display:flex;justify-content:center;align-items:flex-end;gap:2px;height:100%;border-radius:6px 6px 0 0;position:relative}
+.axc.on{background:rgba(255,201,74,.35)}
+.axc i{width:7px;border-radius:3px 3px 0 0;border:1.5px solid #2f2638;border-bottom:0;min-height:2px;transition:height .4s}
+.axc i.n{background:var(--near)} .axc i.f{background:var(--far)}
+.axc i.dim{opacity:.35}
+.axc b{position:absolute;top:-1px;left:0;right:0;text-align:center;font-size:10px;font-weight:700;color:var(--coral);display:none}
+.axc.on b{display:block;top:-13px}
+#axLine{position:absolute;left:0;right:0;top:36px;height:8px;display:grid;grid-template-columns:repeat(12,1fr);border:2px solid #2f2638;border-radius:6px;overflow:hidden}
+#axLine span{display:block}
+#mRange{position:absolute;left:calc((100% - 44px) / 24 - 11px);top:12px;width:calc(100% - (100% - 44px) / 12 + 22px);top:22px;margin:0;height:30px;background:transparent;-webkit-appearance:none;appearance:none;cursor:grab}
+#mRange::-webkit-slider-runnable-track{height:30px;background:transparent}
+#mRange::-moz-range-track{height:30px;background:transparent}
+#mRange::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:4px;border-radius:50%;background:var(--coral);border:2.5px solid #2f2638;box-shadow:0 2px 0 #2f2638}
+#mRange::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--coral);border:2.5px solid #2f2638}
+#mRange:focus-visible::-webkit-slider-thumb{outline:3px solid var(--sun)}
+#play{flex:none;width:38px;height:38px;border-radius:50%;border:2.5px solid #2f2638;background:var(--coral);color:#fff;font-size:15px}
+#play.on{background:var(--sea)}
+#zone{left:360px;top:calc(var(--mq) + 12px);padding:6px;display:flex;gap:4px}
+.zbtn{border:2px solid transparent;border-radius:12px;background:transparent;padding:6px 12px;font-family:var(--round);font-size:16px;display:flex;align-items:center;gap:6px}
+.zbtn i{width:14px;height:14px;border-radius:4px;border:2px solid #2f2638}
+.zbtn.on{border-color:#2f2638;background:var(--paper2)}
+.zbtn[data-z="near"] i{background:var(--near)} .zbtn[data-z="far"] i{background:var(--far)}
+
+#panel{right:14px;top:calc(var(--mq) + 12px);bottom:14px;width:350px;display:flex;flex-direction:column;overflow:hidden}
+#panelHead{padding:12px 14px 10px;border-bottom:2px dashed var(--line)}
+.selrow{display:flex;gap:6px}
+.selrow select{flex:1;min-width:0;font:inherit;font-size:14px;padding:7px 8px;border-radius:10px;border:2px solid var(--line);background:var(--paper2);color:var(--ink)}
+#place{margin-top:10px}
+#place h2{margin:0;font-family:var(--round);font-weight:400;font-size:20px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+#place h2 small{font-family:var(--font);font-size:12px;color:var(--mute)}
+#place p{margin:4px 0 0;font-size:13px;color:var(--ink2);line-height:1.55}
+#sum{margin-top:8px;font-size:13px;background:var(--paper2);border-radius:10px;padding:6px 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#sum b{font-family:var(--round);font-weight:400;font-size:16px;color:var(--coral)}
+#list{flex:1;overflow-y:auto;padding:10px 12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start}
+.fcard{border:2px solid var(--line);background:var(--paper);border-radius:14px;padding:6px 8px 8px;text-align:left;display:flex;flex-direction:column;gap:2px;transition:transform .15s,border-color .15s}
+.fcard:hover,.fcard.on{border-color:#2f2638;transform:translateY(-2px);box-shadow:3px 3px 0 #2f2638}
+.fcard .pic{height:54px;background:linear-gradient(180deg,#e3f7fb,#bfe9f3);border-radius:10px;overflow:hidden;position:relative}
+.fcard .pic svg{position:absolute;left:50%;top:50%;width:84px;height:46px;margin:-23px 0 0 -42px}
+.fcard b{font-family:var(--round);font-weight:400;font-size:15px;margin-top:3px}
+.fcard b em{font-style:normal;color:#e8a000;font-size:12px;margin-left:3px}
+.fcard small{font-size:11px;color:var(--mute);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.empty{grid-column:1/-1;text-align:center;color:var(--mute);font-size:13px;padding:24px 8px;line-height:1.7}
+.swim{animation:swim 2.6s ease-in-out infinite}
+.swim .tail{transform-box:fill-box;transform-origin:100% 50%;animation:wag .5s ease-in-out infinite alternate}
+@keyframes swim{0%,100%{transform:translateX(-6px) rotate(-2deg)}50%{transform:translateX(6px) rotate(2deg)}}
+@keyframes wag{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+.bubbles span{position:absolute;bottom:-6px;width:6px;height:6px;border-radius:50%;border:1.5px solid rgba(255,255,255,.9);animation:bub 3s linear infinite}
+@keyframes bub{to{transform:translateY(-64px);opacity:0}}
+
+#legend{left:14px;bottom:14px;padding:8px 12px;font-size:12px;color:var(--ink2);max-width:330px;line-height:1.6}
+#legend .row{display:flex;align-items:center;gap:6px}
+#legend i{width:12px;height:12px;border-radius:3px;border:2px solid #2f2638;display:inline-block}
+#tools{left:14px;bottom:104px;display:flex;flex-direction:column;gap:6px}
+.tbtn{border:2.5px solid #2f2638;background:var(--paper);border-radius:12px;padding:6px 10px;font-size:13px;box-shadow:2px 3px 0 #2f2638;text-align:left}
+.tbtn:hover{background:var(--sun);color:#2f2638}
+a.tbtn{text-decoration:none;color:var(--ink)}
+
+#loading{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:linear-gradient(180deg,#9fdcff,#dff4ff);transition:opacity .6s;font-family:var(--round);font-size:18px;color:#16336b}
+#loading.hide{opacity:0;pointer-events:none}
+#loading svg{animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+#loading small{font-family:var(--font);font-size:13px;color:#4b5878;max-width:300px;text-align:center}
+
+.modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(15,30,60,.45)}
+.modal.show{display:flex}
+.sheet{background:var(--paper);border:3px solid #2f2638;border-radius:22px;box-shadow:6px 7px 0 #2f2638;width:min(920px,100%);max-height:calc(100vh - 32px);overflow:auto;position:relative}
+.x{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;border:2.5px solid #2f2638;background:var(--paper);font-size:18px;z-index:2}
+.x:hover{background:var(--coral);color:#fff}
+#fishHead{display:grid;grid-template-columns:minmax(0,320px) 1fr;gap:16px;padding:18px 18px 8px;align-items:center}
+#pvWrap{height:210px;border-radius:16px;background:radial-gradient(ellipse at 50% 40%,#e9fbff,#9fdcef);border:2px solid #2f2638;position:relative;overflow:hidden}
+#pv{width:100%;height:100%;display:block}
+#pvFallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+#pvFallback svg{width:180px;height:100px}
+#fishTitle h2{margin:0;font-family:var(--round);font-weight:400;font-size:30px;line-height:1.15;padding-right:40px}
+#fishTitle .sci{font-style:italic;color:var(--mute);font-size:14px;margin-top:2px}
+#fishTitle .alias{font-size:13px;color:var(--ink2);margin-top:6px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{font-size:12px;border-radius:999px;padding:3px 10px;border:2px solid #2f2638;background:var(--paper2)}
+.tag.near{background:var(--near);color:#123}
+.tag.far{background:var(--far);color:#fff}
+.tag.hot{background:var(--sun);color:#2f2638}
+.sec{padding:8px 18px 4px}
+.sec h3{margin:10px 0 6px;font-family:var(--round);font-weight:400;font-size:18px;display:flex;align-items:center;gap:8px}
+.sec h3::before{content:'';width:10px;height:10px;border-radius:3px;background:var(--coral);border:2px solid #2f2638}
+.sec p{margin:0;line-height:1.75;font-size:14.5px;color:var(--ink2)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px}
+.cal{display:grid;grid-template-columns:56px repeat(12,1fr);gap:3px;font-size:12px;align-items:center}
+.cal .h{text-align:center;color:var(--mute)}
+.cal .h.cur{color:var(--coral);font-weight:700}
+.cal .z{font-family:var(--round);font-size:13px}
+.cal .c{height:22px;border-radius:6px;background:var(--paper2);border:1.5px solid var(--line);position:relative}
+.cal .c.yes.near{background:var(--near);border-color:#2f2638}
+.cal .c.yes.far{background:var(--far);border-color:#2f2638}
+.cal .c.cur{outline:2.5px solid var(--coral);outline-offset:1px}
+.cal .c.here::after{content:'';position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:#fff;border:1.5px solid #2f2638}
+.calnote{font-size:12px;color:var(--mute);margin-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;border:2px solid var(--line);background:var(--paper2);border-radius:999px;padding:3px 10px}
+button.chip:hover{border-color:#2f2638;background:var(--sun);color:#2f2638}
+.chip.hot{border-color:#e8a000}
+.cook .chip{background:#fff3e0;border-color:#ffd59a;color:#7a4a00}
+.recipe{border:2.5px solid #2f2638;border-radius:16px;margin:8px 0 4px;overflow:hidden;background:repeating-linear-gradient(0deg,var(--paper) 0 27px,var(--paper2) 27px 28px)}
+.rtabs{display:flex;gap:6px;margin-bottom:4px}
+.rtab{border:2px solid #2f2638;border-radius:12px 12px 0 0;border-bottom:0;padding:5px 12px;background:var(--paper2);font-family:var(--round)}
+.rtab.on{background:var(--sun);color:#2f2638}
+.rhead{background:var(--coral);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.rhead b{font-family:var(--round);font-weight:400;font-size:20px}
+.rhead span{font-size:13px;opacity:.95}
+.rbody{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:16px;padding:12px 16px 14px}
+.rbody h4{margin:0 0 6px;font-size:14px;color:var(--coral)}
+.rbody ul,.rbody ol{margin:0;padding-left:20px;font-size:14px;line-height:1.8;color:var(--ink)}
+.rnote{margin:0 16px 14px;padding:8px 12px;border-radius:10px;background:#fff8d6;color:#6b5200;font-size:13px;border:1.5px dashed #e8c04a}
+.mfoot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 18px 18px;flex-wrap:wrap}
+.mfoot small{color:var(--mute);font-size:12px;max-width:560px;line-height:1.5}
+.pbtn{border:2.5px solid #2f2638;background:var(--sun);color:#2f2638;border-radius:12px;padding:8px 14px;font-family:var(--round);box-shadow:2px 3px 0 #2f2638}
+#about .sheet{width:min(720px,100%);padding:20px 22px}
+#about h2{font-family:var(--round);font-weight:400;margin:0 0 10px}
+.warn-box{border:2px solid #f0b4ac;background:#fff3f1;color:#6a2a22;border-radius:14px;padding:10px 14px;font-size:13.5px;line-height:1.7}
+.warn-box ul{margin:6px 0 0;padding-left:20px}
+.creator-box{margin-top:12px;border:2px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13.5px;line-height:1.7;color:var(--ink2)}
+.creator-box a{color:var(--sea)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .warn-box{background:#3a2226;color:#ffd9d3;border-color:#7a3a35} :root:not([data-theme="light"]) .rnote{background:#3a3418;color:#ffe9a3} :root:not([data-theme="light"]) .cook .chip{background:#3a2c18;color:#ffd59a;border-color:#6a4a20} }
+:root[data-theme="dark"] .warn-box{background:#3a2226;color:#ffd9d3;border-color:#7a3a35}
+
+#sheetBtn{display:none}
+@media (max-width:1180px){
+  #legend{display:none}
+  #ctrl{left:14px;justify-content:flex-start}
+  #tools{bottom:124px}
+}
+@media (max-width:760px){
+  #brand{left:10px;right:10px;top:calc(var(--mq) + 8px);max-width:none;padding:7px 10px}
+  #brand h1{font-size:17px}
+  #brand p{display:none}
+  #brand svg{width:34px;height:34px}
+  #ctrl{left:10px;right:10px;top:calc(var(--mq) + 62px);bottom:auto;padding:6px 8px}
+  .mbtn{min-width:38px;padding:3px 5px;font-size:13px}
+  #zone{left:auto;right:10px;top:calc(var(--mq) + 176px);padding:4px}
+  .zbtn{padding:4px 9px;font-size:14px}
+  #panel{left:0;right:0;bottom:0;top:auto;width:auto;height:46vh;border-radius:20px 20px 0 0;border-bottom:0;transition:height .3s}
+  #panel.min{height:118px}
+  #sheetBtn{display:block;position:absolute;right:10px;top:8px;border:2px solid var(--line);background:var(--paper2);border-radius:10px;font-size:12px;padding:3px 8px;z-index:2}
+  #panelHead{padding:10px 12px 8px}
+  .selrow{padding-right:58px}
+  #place p{display:none}
+  #list{grid-template-columns:1fr 1fr}
+  #legend{display:none}
+  #tools{left:10px;bottom:calc(46vh + 10px);flex-direction:row}
+  body.sheet-min #tools{bottom:128px}
+  .tbtn{padding:5px 8px;font-size:12px}
+  #fishHead{grid-template-columns:1fr;padding:14px 14px 6px}
+  #pvWrap{height:170px}
+  #fishTitle h2{font-size:24px}
+  .sec{padding:6px 14px 2px}
+  .cols,.rbody{grid-template-columns:1fr}
+  .cal{grid-template-columns:40px repeat(12,1fr);font-size:10px}
+  .modal{padding:8px}
+}
+@media print{
+  body *{visibility:hidden}
+  #fish, #fish *{visibility:visible}
+  #fish{position:absolute;inset:0;background:#fff;display:block;padding:0}
+  #fish .sheet{box-shadow:none;border:0;max-height:none;overflow:visible}
+  .x,.mfoot button,#pvWrap,.rtabs{display:none!important}
+  #fishHead{grid-template-columns:1fr}
+  .recipe{break-inside:avoid}
+  .recipe[hidden]{display:block!important}
+}
+@media (prefers-reduced-motion: reduce){ .swim,.swim .tail,.bubbles span,#loading svg,#marqueeTrack{animation:none} }
+</style>
+</head>
+<body>
+<div id="marqueeBar"><div id="marqueeTrack"></div></div>
+
+<div id="stage"><div id="labels"></div></div>
+
+<header id="brand" class="ui card-ui">
+  <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+    <circle cx="22" cy="22" r="20" fill="#2b8fd6" stroke="#2f2638" stroke-width="2.5"/>
+    <path d="M6 27c4-3 8-3 12 0s8 3 12 0 6-3 8-1v7a18 18 0 0 1-32 0z" fill="#62d6d8"/>
+    <path d="M24 9c-3 3-4 8-2 12 2 3 1 6-1 8 4-1 6-5 6-9 0-4-2-7-3-11z" fill="#7fcf63" stroke="#2f2638" stroke-width="1.8"/>
+    <g transform="translate(9 14)"><path d="M0 4c3-4 8-4 11 0-3 4-8 4-11 0z" fill="#ffc94a" stroke="#2f2638" stroke-width="1.6"/><path d="M11 4l4-3v6z" fill="#ffc94a" stroke="#2f2638" stroke-width="1.6"/><circle cx="3" cy="3.4" r=".9" fill="#2f2638"/></g>
+  </svg>
+  <div><h1>台灣漁港魚汛圖鑑</h1><p>選港口、月份與近海／遠海，看這個月會游來哪些魚</p></div>
+</header>
+
+<nav id="ctrl" class="ui card-ui" aria-label="月份">
+  <div class="mwrap">
+    <div id="months" role="tablist"></div>
+    <div id="axis" title="拖曳月份軸線切換月份；長條＝該月可捕種數">
+      <div id="axBars"></div>
+      <div id="axLine"></div>
+      <input type="range" id="mRange" min="1" max="12" step="1" aria-label="月份軸線">
+    </div>
+  </div>
+  <button id="play" type="button" title="自動播放十二個月" aria-label="自動播放">▶</button>
+</nav>
+
+<div id="zone" class="ui card-ui" role="radiogroup" aria-label="海域">
+  <button class="zbtn" data-z="near" type="button" role="radio" title="沿岸到離岸約 12 浬"><i></i>近海</button>
+  <button class="zbtn" data-z="far" type="button" role="radio" title="12 浬以外的外海與遠洋"><i></i>遠海</button>
+</div>
+
+<aside id="panel" class="ui card-ui" aria-label="漁獲清單">
+  <button id="sheetBtn" type="button">收合</button>
+  <div id="panelHead">
+    <div class="selrow">
+      <select id="selRegion" aria-label="區域"></select>
+      <select id="selPort" aria-label="漁港"></select>
+    </div>
+    <div id="place"></div>
+    <div id="sum"></div>
+  </div>
+  <div id="list"></div>
+</aside>
+
+<div id="tools" class="ui">
+  <button class="tbtn" id="btnAll" type="button">🗺 看全台</button>
+  <button class="tbtn" id="btnAbout" type="button">ⓘ 關於／警語</button>
+  <a class="tbtn" href="manual.html" target="_blank" rel="noopener">📖 使用說明</a>
+</div>
+
+<div id="legend" class="ui card-ui">
+  <div class="row"><i style="background:var(--near)"></i>近海：沿岸到約 12 浬（白色虛線為界）</div>
+  <div class="row"><i style="background:var(--far)"></i>遠海：12 浬外到外海（外圈點線）</div>
+  <div class="row">★ 該港名產　・拖曳旋轉、滾輪縮放、點魚看圖鑑</div>
+</div>
+
+<div id="loading">
+  <svg width="120" height="80" viewBox="0 0 120 80" aria-hidden="true">
+    <path d="M10 58c8-6 16-6 24 0s16 6 24 0 16-6 24 0 16 6 24 0" fill="none" stroke="#2b8fd6" stroke-width="4" stroke-linecap="round"/>
+    <path d="M28 44h62l-10 14H38z" fill="#ff6f61" stroke="#2f2638" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="46" y="28" width="22" height="16" rx="3" fill="#fff" stroke="#2f2638" stroke-width="3"/>
+    <path d="M74 44V14" stroke="#2f2638" stroke-width="3"/><path d="M74 15l14 5-14 5z" fill="#ffc94a" stroke="#2f2638" stroke-width="2.5"/>
+  </svg>
+  <div id="loadMsg">漁船出港中，正在把島嶼畫出來…</div>
+  <small id="loadSub">第一次開啟需要下載 3D 繪圖元件</small>
+</div>
+
+<div id="fish" class="modal" role="dialog" aria-modal="true" aria-labelledby="fishName">
+  <div class="sheet">
+    <button class="x" type="button" data-close aria-label="關閉">✕</button>
+    <div id="fishHead">
+      <div id="pvWrap"><canvas id="pv"></canvas><div id="pvFallback" hidden></div></div>
+      <div id="fishTitle"></div>
+    </div>
+    <div id="fishBody"></div>
+    <div class="mfoot">
+      <small>季節為一般性參考，實際漁況受水溫、黑潮、颱風、休漁與禁漁公告影響；食譜份量可依口味調整。</small>
+      <button class="pbtn" id="btnPrint" type="button">🖨 列印圖鑑與食譜</button>
+    </div>
+  </div>
+</div>
+
+<div id="about" class="modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+  <div class="sheet">
+    <button class="x" type="button" data-close aria-label="關閉">✕</button>
+    <h2 id="aboutTitle">關於台灣漁港魚汛圖鑑</h2>
+    <div class="warn-box">
+      <strong>使用警語</strong>
+      <ul>
+        <li>漁獲季節、海域與產地為一般性參考資料，整理自常見的漁業與漁會公開說法；實際漁況每年受水溫、黑潮、颱風、休漁期、禁漁公告與資源量影響，不保證當月一定捕得到或買得到。</li>
+        <li>「近海」以離岸約 12 浬示意、「遠海」為其外側海域；地圖上的海岸線、島嶼大小與山高皆為簡化與誇大的示意，不可作為航行、漁撈或任何導航用途。</li>
+        <li>秋刀魚、阿根廷魷等標示「遠洋」者，是台灣船隊到外洋作業後卸回國內漁港，並非台灣周邊海域的漁獲。</li>
+        <li>捕撈與購買請遵守漁業法規，例如抱卵母蟹與未達體長的龍蝦應放流、魩仔魚與櫻花蝦有漁期限制、黑鮪魚有配額管理；生食海鮮請確認來源與新鮮度。</li>
+        <li>食譜為家常做法建議，份量與火候請依實際食材調整；對海鮮過敏者請勿食用。</li>
+        <li>僅供教學、課程及個人使用，禁止未經授權公開發布、販售或商業化使用。</li>
+      </ul>
+    </div>
+    <div class="creator-box">
+      <p style="margin:0"><strong>創作者：Mark Tsai（蔡豐全）</strong></p>
+      <p style="margin:4px 0">勞動力發展署創業顧問（2017 起）、經濟部 SBIR 海選專案評審委員（2019－2024），長期擔任小型企業人力提升計畫顧問與多項政府計畫業師、評審委員；專長銷售數據分析、AI 工具運用、政府補助計畫申請、創業與跨境電商。</p>
+      <p style="margin:0"><a href="manual.html#creator" target="_blank" rel="noopener">完整經歷與證照</a>｜<a href="mailto:tsaimark@gmail.com">tsaimark@gmail.com</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="scene.js"></script>
+<script src="app.js"></script>
+
+<script>
+/* ================= 頂部跑馬燈 — 獨立運作，沿用工作區共用授權伺服器的公告內容 ================= */
+(function () {
+  'use strict';
+  var MARQUEE_CHECK_URL = "https://script.google.com/macros/s/AKfycbwKX0DNNbY8y4nf90BFTHtxgfqJcHHcZasRrgycl4QAe52_hkjMWSkYk4xOsqU-JPCROw/exec";
+  var STORAGE_KEY = 'fishAtlasMarquee';
+  var REFRESH_MS = 20 * 60 * 1000;
+
+  var bar = document.getElementById('marqueeBar');
+  var track = document.getElementById('marqueeTrack');
+  var lastKey = null;
+
+  function loadCache() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function saveCache(items) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch (e) {}
+  }
+  function appendParsedText(container, text) {
+    var re = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    var lastIndex = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > lastIndex) container.appendChild(document.createTextNode(text.slice(lastIndex, m.index)));
+      var a = document.createElement('a');
+      a.href = m[2]; a.textContent = m[1]; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      a.style.color = 'inherit'; a.style.textDecoration = 'underline';
+      container.appendChild(a);
+      lastIndex = re.lastIndex;
+    }
+    if (lastIndex < text.length) container.appendChild(document.createTextNode(text.slice(lastIndex)));
+  }
+  function buildTrackContent(items) {
+    var frag = document.createDocumentFragment();
+    function appendPass() {
+      items.forEach(function (item, idx) {
+        if (idx > 0) frag.appendChild(document.createTextNode('　★　'));
+        appendParsedText(frag, item);
+      });
+    }
+    appendPass();
+    frag.appendChild(document.createTextNode('　★　'));
+    appendPass();
+    return frag;
+  }
+  function render(items) {
+    if (!items || !items.length) return;
+    var key = JSON.stringify(items);
+    if (key === lastKey) return;
+    lastKey = key;
+    track.innerHTML = '';
+    track.appendChild(buildTrackContent(items));
+    bar.classList.add('show');
+    document.body.classList.add('has-marquee');
+    var width = track.scrollWidth / 2;
+    track.style.animationDuration = Math.max(width / 80, 10) + 's';
+  }
+  function fetchMarquee() {
+    fetch(MARQUEE_CHECK_URL, { method: 'POST', body: JSON.stringify({ serial: '' }) })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && Array.isArray(data.marquee) && data.marquee.length) {
+          saveCache(data.marquee);
+          render(data.marquee);
+        }
+      })
+      .catch(function () {});
+  }
+
+  render(loadCache());
+  fetchMarquee();
+  setInterval(fetchMarquee, REFRESH_MS);
+})();
+</script>
+</body>
+</html>
